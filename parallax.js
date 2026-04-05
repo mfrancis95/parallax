@@ -1,28 +1,19 @@
 Element.prototype.parallaxify = function() {
-    var self = this;
-    var dataset = self.dataset;
-    var factor = dataset.factor || -1;
-    var updating;
-    if (dataset.background) {
-        self.style.backgroundAttachment = "fixed";
-        var xPos = window.getComputedStyle(self).getPropertyValue("background-position").split(" ")[0];
-        var update = function() {
-            self.style.backgroundPosition = xPos + " " + (window.scrollY * factor) + "px";
-            updating = false;
-        };
-    }
-    else {
-        var update = function() {
-            self.style.transform = "translateY(" + (window.scrollY * factor) + "px)";
-            updating = false;
-        };
-    }
-    updating = true;
+    const { factor = -1, unit = 'px' } = this.dataset;
+    let updating = true;
+    const update = () => {
+        this.style.setProperty('--scroll-y', (window.scrollY * factor) + unit);
+        updating = false;
+    };
     update();
-    window.addEventListener("scroll", function() {
+    window.addEventListener('scroll', () => {
         if (!updating) {
             updating = true;
             requestAnimationFrame(update);
         }
-    });
+    }, { passive: true });
 };
+
+for (const element of document.getElementsByClassName('parallax')) {
+    element.parallaxify();
+}
